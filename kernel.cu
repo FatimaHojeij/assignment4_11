@@ -13,8 +13,8 @@ __global__ void convolution_tiled_kernel(float* input, float* output, unsigned i
     // TODO
 	unsigned int outRow = blockIdx.y*OUT_TILE_DIM + threadIdx.y;
 	unsigned int outCol = blockIdx.x*OUT_TILE_DIM + threadIdx.x;
-	unsigned int inRow = blockIdx.y*blockDim.y + threadIdx.y;
-	unsigned int inCol = blockIdx.x*blockDim.x + threadIdx.x;
+	unsigned int inRow = outRow - MASK_RADIUS;
+    unsigned int inCol = outCol - MASK_RADIUS;
 	if (inRow < height && inRow >= 0 && inCol < width && inCol >= 0) {
 		input_s[threadIdx.y][threadIdx.x] = input[inRow*width + inCol];
 	}else{
@@ -27,10 +27,8 @@ __global__ void convolution_tiled_kernel(float* input, float* output, unsigned i
 		float sum = 0.0f;
         for(int maskRow = 0; maskRow < MASK_DIM; ++maskRow) {
             for(int maskCol = 0; maskCol < MASK_DIM; ++maskCol) {
-                unsigned int inputRow = outRow - MASK_RADIUS + maskRow;
-                unsigned int inputCol = outCol - MASK_RADIUS + maskCol;
-                if(inputRow >= 0 && inputRow < height && inputCol >= 0 && inputCol < width) {
-                    sum += mask_c[maskRow][maskCol]*input_s[inputRow][inputCol];
+                if(inRow >= 0 && inRow < height && inCol >= 0 && inCol < width) {
+                    sum += mask_c[maskRow][maskCol]*input_s[inRow][inCol];
                 }
             }
         }
