@@ -20,7 +20,7 @@ __global__ void convolution_tiled_kernel(float* input, float* output, unsigned i
 	}
 	__syncthreads();
 	
-	//if(inRow<OUT_TILE_DIM && inCol<OUT_TILE_DIM ){
+	if(inRow < height && inRow >= 0 && inCol < width && inCol >= 0){
 		float sum = 0.0f;
         for(int maskRow = 0; maskRow < MASK_DIM; ++maskRow) {
             for(int maskCol = 0; maskCol < MASK_DIM; ++maskCol) {
@@ -32,8 +32,10 @@ __global__ void convolution_tiled_kernel(float* input, float* output, unsigned i
             }
 			__syncthreads();
         }
-        output[outRow*width + outCol] = sum;
-	//}
+		if(inRow<OUT_TILE_DIM && inCol<OUT_TILE_DIM ){
+			output[outRow*width + outCol] = sum;
+		}
+	}
 }
 
 void copyMaskToGPU(float mask[][MASK_DIM]) {
