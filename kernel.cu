@@ -20,14 +20,14 @@ __global__ void convolution_tiled_kernel(float* input, float* output, unsigned i
 	}
 	__syncthreads();
 	
-	if(inRow < height && inRow >= 0 && inCol < width && inCol >= 0){
+	if(outRow<OUT_TILE_DIM && outCol<OUT_TILE_DIM){
 		float sum = 0.0f;
         for(int maskRow = 0; maskRow < MASK_DIM; ++maskRow) {
             for(int maskCol = 0; maskCol < MASK_DIM; ++maskCol) {
-                int inRow = outRow - MASK_RADIUS + maskRow;
-                int inCol = outCol - MASK_RADIUS + maskCol;
-                if(inRow >= 0 && inRow < height && inCol >= 0 && inCol < width) {
-                    sum += mask_c[maskRow][maskCol]*input_s[inRow][inCol];
+                int inputRow = outRow - MASK_RADIUS + maskRow;
+                int inputCol = outCol - MASK_RADIUS + maskCol;
+                if(inputRow >= 0 && inputRow < height && inputCol >= 0 && inputCol < width) {
+                    sum += mask_c[maskRow][maskCol]*input_s[inputRow][inputCol];
                 }
             }
 			__syncthreads();
